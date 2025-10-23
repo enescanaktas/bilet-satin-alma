@@ -60,7 +60,8 @@ class DatabaseTest extends TestCase
 
         // Insert test data
         $hashedPassword = password_hash('test123', PASSWORD_DEFAULT);
-        $this->db->exec("INSERT INTO users (username, password) VALUES ('testuser', '{$hashedPassword}')");
+        $stmt = $this->db->prepare("INSERT INTO users (username, password) VALUES (?, ?)");
+        $stmt->execute(['testuser', $hashedPassword]);
         $this->db->exec("INSERT INTO seats (seat_number) VALUES ('A1'), ('A2'), ('A3')");
     }
 
