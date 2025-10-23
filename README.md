@@ -101,3 +101,50 @@ Gereksinimler / Kurulum
 
 Eğer GitHub'a push konusunda yardıma ihtiyacınız olursa (PAT, remote ayarları, credential temizleme vb.) adım adım yardımcı olabilirim.
 
+Create a secure admin account (interactive)
+-----------------------------------------
+Yerel bir yönetici hesabı oluşturmak için:
+
+```powershell
+php bin/create_admin.php
+```
+
+Run with Docker (recommended)
+-----------------------------
+
+```powershell
+docker-compose build --no-cache
+docker-compose up -d
+```
+
+Or run built-in PHP server for quick local testing (development only)
+------------------------------------------------------------------
+
+```powershell
+php -S 127.0.0.1:8000 -t public
+```
+
+Quick integration test (CSRF + quickbuy)
+---------------------------------------
+
+There is a lightweight integration script that verifies the CSRF -> login -> quickbuy flow. It runs without a browser and uses the app's HTTP endpoints. Run inside the web container or on a machine that can reach the web server:
+
+```bash
+php tests/integration/test_booking_flow.php
+```
+
+If the test prints `OK quickBuy seat=...` it means a seat was successfully purchased by the test user. The script assumes a `testuser` with password `password` exists; run `php bin/create_test_user.php` to create it if needed.
+
+Note: temporary POST debug logging was removed from `src/controllers/BookingController.php`; re-enable only for local debugging and avoid committing such logs.
+
+Database migrations
+-------------------
+If you have an existing database from an older version, run the idempotent migrations:
+
+```powershell
+# inside project root (PowerShell)
+php bin/migrate_all.php
+```
+
+This will (safely) add `passenger_gender` to `bookings` and `firm_id` to `users` if they are missing. For a fresh install `php bin/init_db.php` already creates the correct schema.
+
