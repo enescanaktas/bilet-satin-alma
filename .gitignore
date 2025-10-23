@@ -1,0 +1,48 @@
+# Composer
+/vendor/
+composer.lock
+
+# Environment
+.env
+instance/
+*.local
+*.env
+
+# IDEs
+.idea/
+*.iml
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Logs / cache
+*.log
+.cache/
+tmp/
+node_modules/
+
+# PHPUnit result cache
+.phpunit.result.cache
+
+# Build / artifacts
+/build/
+dist/
+
+# Uploaded files
+static/uploads/
+/.venv
+instance/
+.env
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+env/
+build/
+dist/
+.pytest_cache/
+vendor/
+.idea/
+*.log
+/.vscode/
