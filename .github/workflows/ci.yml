@@ -1,0 +1,63 @@
+name: CI
+
+on:
+  push:
+    branches: [ main, copilot/** ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - uses: actions/checkout@v3
+    
+    - name: Setup PHP
+      uses: shivammathur/setup-php@v2
+      with:
+        php-version: '8.2'
+        extensions: pdo, pdo_sqlite, gd, zip
+        coverage: none
+    
+    - name: Validate composer.json
+      run: composer validate --strict
+    
+    - name: Cache Composer packages
+      id: composer-cache
+      uses: actions/cache@v3
+      with:
+        path: vendor
+        key: ${{ runner.os }}-php-${{ hashFiles('**/composer.lock') }}
+        restore-keys: |
+          ${{ runner.os }}-php-
+    
+    - name: Install dependencies
+      run: composer install --prefer-dist --no-progress
+    
+    - name: Initialize database
+      run: php init_db.php
+    
+    - name: Run PHPUnit tests
+      run: vendor/bin/phpunit
+    
+    - name: Check database was created
+      run: test -f database/tickets.db
+
+  docker:
+    runs-on: ubuntu-latest
+    needs: test
+    
+    steps:
+    - uses: actions/checkout@v3
+    
+    - name: Build Docker image
+      run: docker build -t bilet-satin-alma .
+    
+    - name: Test Docker container
+      run: |
+        docker run -d -p 8080:80 --name test-app bilet-satin-alma
+        sleep 10
+        curl -f http://localhost:8080/ || exit 1
+        docker stop test-app
+        docker rm test-app
