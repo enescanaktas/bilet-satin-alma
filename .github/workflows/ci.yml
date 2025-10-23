@@ -1,0 +1,26 @@
+name: PHP CI
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  phpunit:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.1'
+          extensions: mbstring
+      - name: Lint PHP
+        run: |
+          find . -type f -name '*.php' -not -path './vendor/*' -print0 | xargs -0 -n1 php -l
+      - name: Run PHPUnit via phar helper
+        run: php -f bin/run_phpunit.php
+      - name: Start web (docker-compose)
+        run: docker-compose up -d --build
+      - name: Run integration test via container
+        run: |
+          docker-compose exec -T web php /var/www/html/tests/integration/test_booking_flow.php
